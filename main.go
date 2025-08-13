@@ -45,6 +45,12 @@ type Body struct {
 }
 
 func main() {
+	run([]string{"add", "the office"})
+	run([]string{"add", "the office", "idk2"})
+	run([]string{"list-playlists"})
+	run([]string{""})
+
+	os.Exit(1)
 	LoadEnv()
 
 	key := os.Getenv("KEY")
