@@ -41,9 +41,9 @@ var options []Option = []Option {
 	},
 	{
 		name: "add",
-		description: "Adds a playlist by it name and youtube id",
+		description: "Adds a playlist with name and youtube id",
 		callback: func(args []string) {
-			if len(args) <= 1 {
+			if len(args) < 2 {
 				fmt.Println("Please, pass the playlist name and " +
 					"youtube id as separeted values.")
 				return
@@ -54,6 +54,39 @@ var options []Option = []Option {
 			playlists = append(playlists, playlist)
 		},
 	},
+	{
+		name: "rm",
+		description: "Remove a playlist by youtube id.",
+		callback: func(args []string) {
+			if len(args) < 1 {
+				fmt.Println("Please, pass the youtube id")
+				return
+			}
+
+			playlistId := args[0]
+			if !removePlaylistById(playlistId) {
+				fmt.Printf("Cannot found playlist \"%v\".\n", playlistId)
+			}
+		},
+	},
+}
+
+func removePlaylistById(youtubeId string) bool {
+	index := -1
+
+	for i, playlist := range playlists {
+		if playlist.youtubeId == youtubeId {
+			index = i
+			break
+		}
+	}
+
+	if index > -1 {
+		playlists = append(playlists[:index], playlists[index+1:]...)
+		return true
+	}
+
+	return false
 }
 
 func registerOptions() map[string]Option {

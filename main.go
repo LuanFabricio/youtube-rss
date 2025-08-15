@@ -49,6 +49,9 @@ func main() {
 	run([]string{"add", "the office", "idk2"})
 	run([]string{"list-playlists"})
 	run([]string{""})
+	run([]string{"rm", "idk2"})
+	run([]string{"rm", "1"})
+	run([]string{"rm"})
 
 	os.Exit(1)
 	LoadEnv()
