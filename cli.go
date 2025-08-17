@@ -9,6 +9,7 @@ type Callback func(args []string)
 
 type Option struct {
 	name string
+	args []string
 	description string
 	callback Callback
 }
@@ -26,6 +27,7 @@ var playlists []Playlist = []Playlist{
 var options []Option = []Option {
 	{
 		name: "list-playlists",
+		args: []string{},
 		description: "List the playlists.",
 		callback: func(args []string) {
 			display := ""
@@ -41,6 +43,7 @@ var options []Option = []Option {
 	},
 	{
 		name: "add",
+		args: []string{"name", "playlist id"},
 		description: "Adds a playlist with name and youtube id",
 		callback: func(args []string) {
 			if len(args) < 2 {
@@ -56,6 +59,7 @@ var options []Option = []Option {
 	},
 	{
 		name: "rm",
+		args: []string{"playlist id"},
 		description: "Remove a playlist by youtube id.",
 		callback: func(args []string) {
 			if len(args) < 1 {
@@ -99,18 +103,34 @@ func registerOptions() map[string]Option {
 	return optionsMap
 }
 
-func run(args []string) {
-	optionsMap := registerOptions()
+func help() {
+	help := "Please, use one of the following options:\n\n"
+	for _, option := range options {
+		args := ""
+		fmt.Println(option.args)
+		for _, arg := range option.args {
+			args += fmt.Sprintf(" <%v>", arg)
+		}
+		help += fmt.Sprintf("%v%v - %v\n", option.name, args, option.description)
+	}
+	fmt.Println(help)
 
-	if option, found := optionsMap[args[0]]; found {
+}
+
+func run(args []string) {
+	args = args[1:]
+	if len(args) == 0 {
+		help()
+		return
+	}
+
+	optionsMap := registerOptions()
+	option, found := optionsMap[args[0]]
+	if found {
 		args := args[1:]
 		option.callback(args)
 		return
 	}
 
-	help := "Please, use one of the following options:\n\n"
-	for _, option := range options {
-		help += fmt.Sprintf("%v - %v\n", option.name, option.description)
-	}
-	fmt.Println(help)
+	help()
 }
