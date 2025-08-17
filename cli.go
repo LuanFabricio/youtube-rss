@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 
@@ -21,7 +22,7 @@ type Playlist struct {
 }
 
 var playlists []Playlist = []Playlist{
-	{ name: "The Standup", youtubeId: "idk"},
+	{ name: "The Standup", youtubeId: "PL2Fq-K0QdOQiJpufsnhEd1z3xOv2JMHuk"},
 }
 
 var options []Option = []Option {
@@ -70,6 +71,48 @@ var options []Option = []Option {
 			playlistId := args[0]
 			if !removePlaylistById(playlistId) {
 				fmt.Printf("Cannot found playlist \"%v\".\n", playlistId)
+			}
+		},
+	},
+	{
+		name: "show",
+		args: []string{"name"},
+		description: "Show the playlist content given a name.",
+		callback: func(args []string) {
+			if len(args) < 1 {
+				fmt.Println("Please, pass the playlist name." +
+					"You can see it with `list-playlists` command.")
+				return
+			}
+
+			playlistName := args[0]
+			index := -1
+			for i := range playlists {
+				if playlists[i].name == playlistName {
+					index = i
+					break
+				}
+			}
+
+			if index == -1 {
+				fmt.Println("Playlist name not found." +
+					"You can list the playlists with" +
+					" `list-playlists` command.")
+				return
+			}
+			playlist := playlists[index]
+
+			body, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
+			LogError(err)
+
+			lenBody := len(body.Items)
+			fmt.Printf("Showing %v (%v):\n", playlist.name, playlist.youtubeId)
+			for i, item := range body.Items {
+				fmt.Printf(
+					"\tEpisode %03d: %v\n",
+					lenBody - i,
+					item.Snippet.Title,
+				)
 			}
 		},
 	},
