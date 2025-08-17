@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -18,14 +17,12 @@ func LoadEnv() {
 
 	lines := strings.Split(string(content), "\n")
 	lines = lines[:len(lines) - 1]
-	fmt.Println(lines)
 
 	for _, line := range lines {
 		lenLine := len(line)
 		i := 0
 		key := ""
 		for line[i] != '=' && i < lenLine {
-			fmt.Printf("[%v]: %v\n", i, string(line[i]))
 			key += string(line[i])
 			i++
 		}
@@ -33,7 +30,6 @@ func LoadEnv() {
 
 		value := ""
 		for i < lenLine  {
-			fmt.Printf("[%v]: %v\n", i, string(line[i]))
 			value += string(line[i])
 			i++
 		}
