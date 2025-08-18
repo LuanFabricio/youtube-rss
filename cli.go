@@ -16,9 +16,9 @@ type Option struct {
 }
 
 type Playlist struct {
+	id *int
 	name string
 	youtubeId string
-
 }
 
 var playlists []Playlist = []Playlist{
@@ -31,6 +31,7 @@ var options []Option = []Option {
 		args: []string{},
 		description: "List the playlists.",
 		callback: func(args []string) {
+			playlists = GetPlaylists()
 			display := ""
 			for _, playlist := range playlists {
 				display += fmt.Sprintf(
@@ -55,7 +56,8 @@ var options []Option = []Option {
 
 			playlist := Playlist{ name: args[0], youtubeId: args[1], }
 
-			playlists = append(playlists, playlist)
+			_ = AddPlaylist(playlist)
+			// playlists = append(playlists, playlist)
 		},
 	},
 	{
@@ -87,6 +89,7 @@ var options []Option = []Option {
 
 			playlistName := args[0]
 			index := -1
+			playlists = GetPlaylists()
 			for i := range playlists {
 				if playlists[i].name == playlistName {
 					index = i
