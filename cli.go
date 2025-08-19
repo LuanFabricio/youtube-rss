@@ -71,18 +71,17 @@ var options []Option = []Option {
 	},
 	{
 		name: "rm",
-		args: []string{"playlist id"},
-		description: "Remove a playlist by youtube id.",
+		args: []string{"playlist name"},
+		description: "Remove a playlist by it name.",
 		callback: func(args []string) {
 			if len(args) < 1 {
 				fmt.Println("Please, pass the youtube id")
 				return
 			}
 
-			playlistId := args[0]
-			if !removePlaylistById(playlistId) {
-				fmt.Printf("Cannot found playlist \"%v\".\n", playlistId)
-			}
+			playlistName := args[0]
+			playlist := GetPlaylistByName(playlistName)
+			RemovePlaylist(playlist)
 		},
 	},
 	{
