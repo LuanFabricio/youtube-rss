@@ -136,6 +136,23 @@ func AddPlaylist(playlist Playlist) Playlist {
 	return playlist
 }
 
+func RemovePlaylist(playlist Playlist) {
+	db, err := GetDatabase()
+	LogError(err)
+
+	_, err = db.Exec(`
+		DELETE FROM videos
+		WHERE playlist_id = $1
+	`, *playlist.id)
+	LogError(err)
+
+	_, err = db.Exec(`
+		DELETE FROM playlists
+		WHERE youtube_id = $1
+	`, playlist.youtubeId)
+	LogError(err)
+}
+
 func GetVideosByPlaylist(playlistYoutubeId string) []Video {
 	db, err := GetDatabase()
 	LogError(err)
