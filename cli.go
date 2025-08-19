@@ -21,6 +21,15 @@ type Playlist struct {
 	youtubeId string
 }
 
+type Video struct {
+	id *int
+	playlistId int
+	name string
+	youtubeId string
+	watched bool
+	created_at *time.Time
+}
+
 var playlists []Playlist = []Playlist{
 	{ name: "The Standup", youtubeId: "PL2Fq-K0QdOQiJpufsnhEd1z3xOv2JMHuk"},
 }
