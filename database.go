@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -109,4 +110,54 @@ func AddPlaylist(playlist Playlist) Playlist {
 	row.Scan(&playlist.id, &playlist.name, &playlist.youtubeId)
 
 	return playlist
+}
+
+func AddVideoIfNotRegistered(playlistId int, video Item) {
+	db, err := GetDatabase()
+	LogError(err)
+
+	row := db.QueryRow(`
+		SELECT
+			count(*)
+		FROM videos
+		WHERE playlist_id = $1
+			and youtube_id = $2
+	`, playlistId, video.Id)
+	var count int
+	row.Scan(&count)
+
+	if count > 0 {
+		return
+	}
+
+	_, err = db.Exec(`
+		INSERT INTO videos (playlist_id, name, youtube_id)
+		VALUES ($1, $2, $3)
+	`, playlistId, video.Snippet.Title, video.Id)
+	LogError(err)
+}
+
+func AddPlaylistVideosIfNotRegistered(playlist Playlist) {
+	videos, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
+	LogError(err)
+
+	for _, video := range videos.Items {
+		AddVideoIfNotRegistered(*playlist.id, video)
+	}
+}
+
+func AddVideos(apiKey string, playlist Playlist) {
+	db, err := GetDatabase()
+	LogError(err)
+
+	statement, err := db.Prepare(`
+		INSERT INTO videos (playlist_id, name, youtube_id)
+		VALUES (?, ?, ?)
+	`)
+
+	body, err := GetPlaylist(apiKey, playlist.youtubeId)
+	for _, item := range body.Items {
+		_, err := statement.Exec(playlist.id, item.Snippet.Title, item.Id)
+		LogError(err)
+	}
 }
