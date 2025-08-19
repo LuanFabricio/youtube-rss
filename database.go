@@ -98,6 +98,30 @@ func GetPlaylists() []Playlist {
 	return playlists
 }
 
+func GetPlaylistByName(name string) Playlist {
+	db, err := GetDatabase()
+	LogError(err)
+
+	// TODO: move query to another place
+	row := db.QueryRow(`
+		select
+			id,
+			name,
+			youtube_id
+		from playlists
+		where name = $1
+	`, name)
+
+	var playlist Playlist
+	row.Scan(
+		&playlist.id,
+		&playlist.name,
+		&playlist.youtubeId,
+	)
+
+	return playlist
+}
+
 func AddPlaylist(playlist Playlist) Playlist {
 	db, err := GetDatabase()
 	LogError(err)
@@ -110,6 +134,39 @@ func AddPlaylist(playlist Playlist) Playlist {
 	row.Scan(&playlist.id, &playlist.name, &playlist.youtubeId)
 
 	return playlist
+}
+
+func GetVideosByPlaylist(playlistYoutubeId string) []Video {
+	db, err := GetDatabase()
+	LogError(err)
+
+	var videos []Video
+	rows, err := db.Query(`
+		SELECT
+			v.playlist_id,
+			v.name,
+			v.youtube_id,
+			v.watched
+		FROM playlists p
+			JOIN videos v
+				on v.playlist_id = p.id
+		WHERE p.youtube_id = $1
+		ORDER BY v.id
+	`, playlistYoutubeId)
+	LogError(err)
+
+	for rows.Next() {
+		var video Video
+		rows.Scan(
+			&video.playlistId,
+			&video.name,
+			&video.youtubeId,
+			&video.watched,
+		)
+		videos = append(videos, video)
+	}
+
+	return videos
 }
 
 func AddVideoIfNotRegistered(playlistId int, video Item) {
@@ -160,4 +217,29 @@ func AddVideos(apiKey string, playlist Playlist) {
 		_, err := statement.Exec(playlist.id, item.Snippet.Title, item.Id)
 		LogError(err)
 	}
+}
+
+func MarkVideoAsWatched(playlistId int, videoTitle string) {
+	db, err := GetDatabase()
+	LogError(err)
+
+	_, err = db.Exec(`
+		UPDATE videos
+		SET watched=true
+		WHERE name=$1
+			and playlist_id = $2
+	`, videoTitle, playlistId)
+	LogError(err)
+}
+
+func MarkAllPlaylistVideosAsWatched(playlistId int) {
+	db, err := GetDatabase()
+	LogError(err)
+
+	_, err = db.Exec(`
+		UPDATE videos
+		SET watched=true
+		WHERE playlist_id = $2
+	`, playlistId)
+	LogError(err)
 }
