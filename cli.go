@@ -163,7 +163,17 @@ func help() {
 
 }
 
+func updateVideos() {
+	playlists := GetPlaylists()
+	for i, playlist := range playlists {
+		fmt.Printf("[%v] Updating playlist %v...\n", i + 1, playlist.name)
+		AddPlaylistVideosIfNotRegistered(playlist)
+	}
+}
+
 func run(args []string) {
+	updateVideos()
+
 	args = args[1:]
 	if len(args) == 0 {
 		help()
