@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"time"
 )
 
 
@@ -114,18 +114,58 @@ var options []Option = []Option {
 			}
 			playlist := playlists[index]
 
-			body, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
-			LogError(err)
+			// videos, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
+			// LogError(err)
 
-			lenBody := len(body.Items)
+			videos := GetVideosByPlaylist(playlist.youtubeId)
+
+			lenBody := len(videos)
 			fmt.Printf("Showing %v (%v):\n", playlist.name, playlist.youtubeId)
-			for i, item := range body.Items {
+			for i, item := range videos {
+				var watchedMark string
+				if item.watched {
+					watchedMark += "*"
+				} else {
+					watchedMark += " "
+				}
+
 				fmt.Printf(
-					"\tEpisode %03d: %v\n",
+					"\t %vEpisode %03d: %v\n",
+					watchedMark,
 					lenBody - i,
-					item.Snippet.Title,
+					item.name,
 				)
 			}
+		},
+	},
+	{
+		name: "watch",
+		args: []string{"playlist", "video title"},
+		description: "Mark a video as watched by it id.",
+		callback: func(args []string) {
+			if len(args) < 2 {
+				fmt.Println("Please, provide the playlist and video name.")
+				return
+			}
+
+			playlistName := args[0]
+			playlist := GetPlaylistByName(playlistName)
+			videoName := args[1]
+			MarkVideoAsWatched(*playlist.id, videoName)
+		},
+	},
+	{
+		name: "watch-all",
+		args: []string{"playlist"},
+		description: "Mark all of the playlist videos as watched.",
+		callback: func(args []string) {
+			if len(args) < 1 {
+				fmt.Println("Please, provide the playlist name.")
+			}
+
+			playlistName := args[0]
+			playlist := GetPlaylistByName(playlistName)
+			MarkAllPlaylistVideosAsWatched(*playlist.id)
 		},
 	},
 }
