@@ -21,7 +21,7 @@ type Thumbnail struct {
 	MaxRes *ThumbnailInfo `json:"maxres"`
 }
 
-type ItemInfo struct {
+type VideoInfo struct {
 	PublishedAt time.Time `json:"publishedAt"`
 	ChannelId string `json:"channelId"`
 	Title string `json:"title"`
@@ -32,7 +32,7 @@ type Item struct {
 	Kind string `json:"kind"`
 	Etag string `json:"etag"`
 	Id string `json:"id"`
-	Snippet ItemInfo `json:"snippet"`
+	Snippet VideoInfo `json:"snippet"`
 }
 
 type Body struct {
