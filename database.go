@@ -54,16 +54,16 @@ func isTablesInitialized() bool {
 	tablesString := ""
 	for i, tableName := range tables {
 		tablesString += fmt.Sprintf("'%v'", tableName)
-		if i < tablesLen {
+		if i + 1 < tablesLen {
 			tablesString += ", "
 		}
 	}
 
 	// TODO: move query to another place
-	row := db.QueryRow(`
+	row := db.QueryRow(fmt.Sprintf(`
 		SELECT count(*) FROM sqlite_master
-		WHERE type='table' AND name in ($1);
-	`, tablesString)
+		WHERE type='table' AND name in (%s);
+	`, tablesString))
 
 	var count int
 	row.Scan(&count)
