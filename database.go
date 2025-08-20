@@ -39,6 +39,7 @@ func createTables() {
 			name varchar(64) not null,
 			youtube_id varchar(64) not null,
 			watched bool not null default false,
+			published_at datetime not null,
 			created_at datetime not null default current_timestamp,
 			foreign key (playlist_id) references playlists(id)
 		)
@@ -163,12 +164,13 @@ func GetVideosByPlaylist(playlistYoutubeId string) []Video {
 			v.playlist_id,
 			v.name,
 			v.youtube_id,
-			v.watched
+			v.watched,
+			v.published_at
 		FROM playlists p
 			JOIN videos v
 				on v.playlist_id = p.id
 		WHERE p.youtube_id = $1
-		ORDER BY v.id
+		ORDER BY v.published_at desc
 	`, playlistYoutubeId)
 	LogError(err)
 
@@ -179,6 +181,7 @@ func GetVideosByPlaylist(playlistYoutubeId string) []Video {
 			&video.name,
 			&video.youtubeId,
 			&video.watched,
+			&video.publishedAt,
 		)
 		videos = append(videos, video)
 	}
@@ -186,7 +189,7 @@ func GetVideosByPlaylist(playlistYoutubeId string) []Video {
 	return videos
 }
 
-func AddVideoIfNotRegistered(playlistId int, video Item) {
+func AddVideoIfNotRegistered(playlistId int, video Item) bool {
 	db, err := GetDatabase()
 	LogError(err)
 
@@ -201,23 +204,29 @@ func AddVideoIfNotRegistered(playlistId int, video Item) {
 	row.Scan(&count)
 
 	if count > 0 {
-		return
+		return false
 	}
 
 	_, err = db.Exec(`
-		INSERT INTO videos (playlist_id, name, youtube_id)
-		VALUES ($1, $2, $3)
-	`, playlistId, video.Snippet.Title, video.Id)
+		INSERT INTO videos (playlist_id, name, youtube_id, published_at)
+		VALUES ($1, $2, $3, $4)
+	`, playlistId, video.Snippet.Title, video.Id, video.Snippet.PublishedAt)
 	LogError(err)
+
+	return true
 }
 
-func AddPlaylistVideosIfNotRegistered(playlist Playlist) {
+func AddPlaylistVideosIfNotRegistered(playlist Playlist) []string {
 	videos, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
 	LogError(err)
 
+	newVideosNames := []string{}
 	for _, video := range videos.Items {
-		AddVideoIfNotRegistered(*playlist.id, video)
+		if AddVideoIfNotRegistered(*playlist.id, video) {
+			newVideosNames = append(newVideosNames, video.Snippet.Title)
+		}
 	}
+	return newVideosNames
 }
 
 func AddVideos(apiKey string, playlist Playlist) {
@@ -225,13 +234,18 @@ func AddVideos(apiKey string, playlist Playlist) {
 	LogError(err)
 
 	statement, err := db.Prepare(`
-		INSERT INTO videos (playlist_id, name, youtube_id)
-		VALUES (?, ?, ?)
+		INSERT INTO videos (playlist_id, name, youtube_id, published_at)
+		VALUES (?, ?, ?, ?)
 	`)
 
 	body, err := GetPlaylist(apiKey, playlist.youtubeId)
 	for _, item := range body.Items {
-		_, err := statement.Exec(playlist.id, item.Snippet.Title, item.Id)
+		_, err := statement.Exec(
+			playlist.id,
+			item.Snippet.Title,
+			item.Id,
+			item.Snippet.PublishedAt,
+		)
 		LogError(err)
 	}
 }
