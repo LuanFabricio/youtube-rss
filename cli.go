@@ -27,7 +27,8 @@ type Video struct {
 	name string
 	youtubeId string
 	watched bool
-	created_at *time.Time
+	publishedAt *time.Time
+	createdAt *time.Time
 }
 
 var playlists []Playlist = []Playlist{
