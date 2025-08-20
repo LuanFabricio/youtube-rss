@@ -169,24 +169,6 @@ var options []Option = []Option {
 	},
 }
 
-func removePlaylistById(youtubeId string) bool {
-	index := -1
-
-	for i, playlist := range playlists {
-		if playlist.youtubeId == youtubeId {
-			index = i
-			break
-		}
-	}
-
-	if index > -1 {
-		playlists = append(playlists[:index], playlists[index+1:]...)
-		return true
-	}
-
-	return false
-}
-
 func registerOptions() map[string]Option {
 	optionsMap := make(map[string]Option)
 
