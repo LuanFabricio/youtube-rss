@@ -15,8 +15,6 @@ func main() {
 	// run([]string{"rm", "1"})
 	// run([]string{"rm"})
 
-	log.Println(os.Args)
-
 	InitDatabase()
 
 	LoadEnv()
