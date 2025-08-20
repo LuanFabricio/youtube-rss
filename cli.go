@@ -184,21 +184,25 @@ func help() {
 	help := "Please, use one of the following options:\n\n"
 	for _, option := range options {
 		args := ""
-		fmt.Println(option.args)
 		for _, arg := range option.args {
 			args += fmt.Sprintf(" <%v>", arg)
 		}
 		help += fmt.Sprintf("%v%v - %v\n", option.name, args, option.description)
 	}
 	fmt.Println(help)
-
 }
 
 func updateVideos() {
 	playlists := GetPlaylists()
 	for i, playlist := range playlists {
 		fmt.Printf("[%v] Updating playlist %v...\n", i + 1, playlist.name)
-		AddPlaylistVideosIfNotRegistered(playlist)
+		videosNames := AddPlaylistVideosIfNotRegistered(playlist)
+
+		for _, videoName := range videosNames {
+			fmt.Printf("\t%v\n", videoName)
+		}
+
+		fmt.Println()
 	}
 }
 
