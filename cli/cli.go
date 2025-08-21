@@ -1,10 +1,11 @@
-package main
+package cli
 
 import (
 	"fmt"
-	"time"
-)
 
+	db "youtube-rss/database"
+	"youtube-rss/models"
+)
 
 type Callback func(args []string)
 
@@ -15,39 +16,19 @@ type Option struct {
 	callback Callback
 }
 
-type Playlist struct {
-	id *int
-	name string
-	youtubeId string
-}
-
-type Video struct {
-	id *int
-	playlistId int
-	name string
-	youtubeId string
-	watched bool
-	publishedAt *time.Time
-	createdAt *time.Time
-}
-
-var playlists []Playlist = []Playlist{
-	{ name: "The Standup", youtubeId: "PL2Fq-K0QdOQiJpufsnhEd1z3xOv2JMHuk"},
-}
-
 var options []Option = []Option {
 	{
 		name: "list-playlists",
 		args: []string{},
 		description: "List the playlists.",
 		callback: func(args []string) {
-			playlists = GetPlaylists()
+			playlists := db.GetPlaylists()
 			display := ""
 			for _, playlist := range playlists {
 				display += fmt.Sprintf(
 					"- [%v]: %v\n",
-					playlist.youtubeId,
-					playlist.name,
+					playlist.YoutubeId,
+					playlist.Name,
 				)
 			}
 			fmt.Println(display)
@@ -64,9 +45,9 @@ var options []Option = []Option {
 				return
 			}
 
-			playlist := Playlist{ name: args[0], youtubeId: args[1], }
+			playlist := models.Playlist{ Name: args[0], YoutubeId: args[1], }
 
-			_ = AddPlaylist(playlist)
+			_ = db.AddPlaylist(playlist)
 			// playlists = append(playlists, playlist)
 		},
 	},
@@ -81,8 +62,8 @@ var options []Option = []Option {
 			}
 
 			playlistName := args[0]
-			playlist := GetPlaylistByName(playlistName)
-			RemovePlaylist(playlist)
+			playlist := db.GetPlaylistByName(playlistName)
+			db.RemovePlaylist(playlist)
 		},
 	},
 	{
@@ -98,9 +79,9 @@ var options []Option = []Option {
 
 			playlistName := args[0]
 			index := -1
-			playlists = GetPlaylists()
+			playlists := db.GetPlaylists()
 			for i := range playlists {
-				if playlists[i].name == playlistName {
+				if playlists[i].Name == playlistName {
 					index = i
 					break
 				}
@@ -117,13 +98,13 @@ var options []Option = []Option {
 			// videos, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
 			// LogError(err)
 
-			videos := GetVideosByPlaylist(playlist.youtubeId)
+			videos := db.GetVideosByPlaylist(playlist.YoutubeId)
 
 			lenBody := len(videos)
-			fmt.Printf("Showing %v (%v):\n", playlist.name, playlist.youtubeId)
+			fmt.Printf("Showing %v (%v):\n", playlist.Name, playlist.YoutubeId)
 			for i, item := range videos {
 				var watchedMark string
-				if item.watched {
+				if item.Watched {
 					watchedMark += "*"
 				} else {
 					watchedMark += " "
@@ -133,7 +114,7 @@ var options []Option = []Option {
 					"\t %vEpisode %03d: %v\n",
 					watchedMark,
 					lenBody - i,
-					item.name,
+					item.Name,
 				)
 			}
 		},
@@ -149,9 +130,9 @@ var options []Option = []Option {
 			}
 
 			playlistName := args[0]
-			playlist := GetPlaylistByName(playlistName)
+			playlist := db.GetPlaylistByName(playlistName)
 			videoName := args[1]
-			MarkVideoAsWatched(*playlist.id, videoName)
+			db.MarkVideoAsWatched(*playlist.Id, videoName)
 		},
 	},
 	{
@@ -164,8 +145,8 @@ var options []Option = []Option {
 			}
 
 			playlistName := args[0]
-			playlist := GetPlaylistByName(playlistName)
-			MarkAllPlaylistVideosAsWatched(*playlist.id)
+			playlist := db.GetPlaylistByName(playlistName)
+			db.MarkAllPlaylistVideosAsWatched(*playlist.Id)
 		},
 	},
 }
@@ -193,10 +174,10 @@ func help() {
 }
 
 func updateVideos() {
-	playlists := GetPlaylists()
+	playlists := db.GetPlaylists()
 	for i, playlist := range playlists {
-		fmt.Printf("[%v] Updating playlist %v...\n", i + 1, playlist.name)
-		videosNames := AddPlaylistVideosIfNotRegistered(playlist)
+		fmt.Printf("[%v] Updating playlist %v...\n", i + 1, playlist.Name)
+		videosNames := db.AddPlaylistVideosIfNotRegistered(playlist)
 
 		for _, videoName := range videosNames {
 			fmt.Printf("\t%v\n", videoName)
@@ -206,7 +187,7 @@ func updateVideos() {
 	}
 }
 
-func run(args []string) {
+func Run(args []string) {
 	updateVideos()
 
 	args = args[1:]

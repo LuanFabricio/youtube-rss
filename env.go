@@ -4,16 +4,18 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"youtube-rss/utils"
 )
 
 const DOTENV_FILE string = ".env"
 
 func LoadEnv() {
 	file, err := os.Open(DOTENV_FILE)
-	LogError(err)
+	utils.LogError(err)
 
 	content, err := io.ReadAll(file)
-	LogError(err)
+	utils.LogError(err)
 
 	lines := strings.Split(string(content), "\n")
 	lines = lines[:len(lines) - 1]

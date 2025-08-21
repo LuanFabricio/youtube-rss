@@ -1,10 +1,12 @@
-package main
+package youtube
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
+
+	"youtube-rss/utils"
 )
 
 type ThumbnailInfo struct {
@@ -51,7 +53,7 @@ func GetPlaylist(apiKey string, playlistId string) (Body, error) {
 		fmt.Sprintf("&key=%v", apiKey)
 
 	res, err := http.Get(url)
-	LogError(err)
+	utils.LogError(err)
 
 	var resBody Body
 	err = json.NewDecoder(res.Body).Decode(&resBody)

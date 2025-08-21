@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 	"os"
+
+	"youtube-rss/cli"
+	db "youtube-rss/database"
 )
 
 func main() {
@@ -15,7 +18,7 @@ func main() {
 	// run([]string{"rm", "1"})
 	// run([]string{"rm"})
 
-	InitDatabase()
+	db.InitDatabase()
 
 	LoadEnv()
 
@@ -24,5 +27,5 @@ func main() {
 		log.Panicln("Invalid KEY")
 	}
 
-	run(os.Args)
+	cli.Run(os.Args)
 }
