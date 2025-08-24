@@ -173,18 +173,29 @@ func help() {
 	fmt.Println(help)
 }
 
-func updateVideos() {
-	playlists := db.GetPlaylists()
-	for i, playlist := range playlists {
-		fmt.Printf("[%v] Updating playlist %v...\n", i + 1, playlist.Name)
-		videosNames := db.AddPlaylistVideosIfNotRegistered(playlist)
+func updatePlaylist(playlist models.Playlist, channel chan int) {
+	videosNames := db.AddPlaylistVideosIfNotRegistered(playlist)
 
-		for _, videoName := range videosNames {
-			fmt.Printf("\t%v\n", videoName)
-		}
-
-		fmt.Println()
+	for _, videoName := range videosNames {
+		fmt.Printf("[%v] %v\n", playlist.Name, videoName)
 	}
+
+	channel <- 0
+}
+
+func updateVideos() {
+	fmt.Println("Updating playlists ...")
+	playlists := db.GetPlaylists()
+	channel := make(chan int)
+	for _, playlist := range playlists {
+		go updatePlaylist(playlist, channel)
+	}
+
+	for range playlists {
+		<- channel
+	}
+
+	fmt.Println()
 }
 
 func Run(args []string) {
