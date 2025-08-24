@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -12,8 +13,16 @@ import (
 	"youtube-rss/youtube"
 )
 
+var BASE_FOLDER string = utils.GetBaseFolder()
+
 func GetDatabase() (*sql.DB, error) {
-	return  sql.Open("sqlite3", "./youtube-rss.db?_foreign_keys=on")
+	return  sql.Open(
+		"sqlite3",
+		filepath.Join(
+			BASE_FOLDER,
+			"youtube-rss.db?_foreign_keys=on",
+		),
+	)
 }
 
 func createTables() {
