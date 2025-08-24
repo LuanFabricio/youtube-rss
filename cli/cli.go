@@ -49,7 +49,7 @@ func updatePlaylist(playlist models.Playlist, channel chan int) {
 }
 
 func updateVideos() {
-	fmt.Println("Updating playlists ...")
+	fmt.Println("Updating playlists...")
 	playlists := db.GetPlaylists()
 	channel := make(chan int)
 	for _, playlist := range playlists {
