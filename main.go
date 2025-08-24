@@ -4,12 +4,14 @@ import (
 	"log"
 	"os"
 
-	db "youtube-rss/database"
 	"youtube-rss/cli"
+	db "youtube-rss/database"
 	"youtube-rss/env"
+	"youtube-rss/utils"
 )
 
 func main() {
+	utils.CreateBaseFolderIfNotExists()
 	db.InitDatabase()
 
 	env.LoadEnv()
