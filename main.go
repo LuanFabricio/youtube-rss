@@ -4,23 +4,15 @@ import (
 	"log"
 	"os"
 
-	"youtube-rss/cli"
 	db "youtube-rss/database"
+	"youtube-rss/cli"
+	"youtube-rss/env"
 )
 
 func main() {
-
-	// run([]string{"add", "the office"})
-	// run([]string{"add", "the office", "idk2"})
-	// run([]string{"list-playlists"})
-	// run([]string{""})
-	// run([]string{"rm", "idk2"})
-	// run([]string{"rm", "1"})
-	// run([]string{"rm"})
-
 	db.InitDatabase()
 
-	LoadEnv()
+	env.LoadEnv()
 
 	key := os.Getenv("KEY")
 	if key == "" {
