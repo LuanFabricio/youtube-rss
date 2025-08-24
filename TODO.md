@@ -1,0 +1,4 @@
+- Bash usage
+  - [ ] Move sqlite3's database to home folder ($HOME/.youtube-rss)
+  - [ ] Move env/config file to home folder ($HOME/.youtube-rss)
+  - [ ] Create a flag (`--just-update`/`-ju`) to just run `updateVideos` function
