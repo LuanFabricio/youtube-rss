@@ -202,6 +202,42 @@ func GetVideosByPlaylist(playlistYoutubeId string) []models.Video {
 	return videos
 }
 
+func GetVideosByPlaylistAndWatched(playlistYoutubeId string, watched bool) []models.Video {
+	db, err := GetDatabase()
+	utils.LogError(err)
+
+	var videos []models.Video
+	rows, err := db.Query(`
+		SELECT
+			v.playlist_id,
+			v.name,
+			v.youtube_id,
+			v.watched,
+			v.published_at
+		FROM playlists p
+			JOIN videos v
+				on v.playlist_id = p.id
+		WHERE p.youtube_id = $1
+			and v.watched = $2
+		ORDER BY v.published_at desc
+	`, playlistYoutubeId, watched)
+	utils.LogError(err)
+
+	for rows.Next() {
+		var video models.Video
+		rows.Scan(
+			&video.PlaylistId,
+			&video.Name,
+			&video.YoutubeId,
+			&video.Watched,
+			&video.PublishedAt,
+		)
+		videos = append(videos, video)
+	}
+
+	return videos
+}
+
 func AddVideoIfNotRegistered(playlistId int, video youtube.Item) bool {
 	db, err := GetDatabase()
 	utils.LogError(err)

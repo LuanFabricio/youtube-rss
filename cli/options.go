@@ -93,6 +93,46 @@ var options []Option = []Option {
 		},
 	},
 	{
+		name: "show-unwatched",
+		args: []string{"name"},
+		description: "Show the playlist unwatched content given a name.",
+		callback: func(args []string) {
+			if len(args) < 1 {
+				fmt.Println("Please, pass the playlist name." +
+					"You can see it with `list-playlists` command.")
+				return
+			}
+
+			playlistName := args[0]
+			playlist := db.GetPlaylistByName(playlistName)
+
+			videos := db.GetVideosByPlaylistAndWatched(playlist.YoutubeId, false)
+
+			lenBody := len(videos)
+			message := fmt.Sprintf(
+				"All videos of playlist %v (%v) are watched!\n",
+				playlist.Name,
+				playlist.YoutubeId,
+			)
+			if lenBody > 0 {
+				message = fmt.Sprintf(
+					"Showing %v (%v) unwatched vídeos:\n",
+					playlist.Name,
+					playlist.YoutubeId,
+				)
+
+				for i, item := range videos {
+					message += fmt.Sprintf(
+						"\t Episode %03d: %v\n",
+						lenBody - i,
+						item.Name,
+					)
+				}
+			}
+			fmt.Println(message)
+		},
+	},
+	{
 		name: "watch",
 		args: []string{"playlist", "video title"},
 		description: "Mark a video as watched by it id.",
