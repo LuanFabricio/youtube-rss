@@ -3,12 +3,13 @@ package env
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"youtube-rss/utils"
 )
 
-const DOTENV_FILE string = ".env"
+var DOTENV_FILE string = filepath.Join(utils.GetBaseFolder(), ".env")
 
 func LoadEnv() {
 	file, err := os.Open(DOTENV_FILE)
