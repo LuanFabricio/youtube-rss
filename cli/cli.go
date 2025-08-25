@@ -7,23 +7,13 @@ import (
 	"youtube-rss/models"
 )
 
-type Callback func(args []string)
+type OptionCallback func(args []string)
 
 type Option struct {
 	name string
 	args []string
 	description string
-	callback Callback
-}
-
-func registerOptions() map[string]Option {
-	optionsMap := make(map[string]Option)
-
-	for _, option := range options {
-		optionsMap[option.name] = option
-	}
-
-	return optionsMap
+	callback OptionCallback
 }
 
 func help() {

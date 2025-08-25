@@ -163,3 +163,13 @@ var options []Option = []Option {
 		},
 	},
 }
+
+func registerOptions() map[string]Option {
+	optionsMap := make(map[string]Option)
+
+	for _, option := range options {
+		optionsMap[option.name] = option
+	}
+
+	return optionsMap
+}
