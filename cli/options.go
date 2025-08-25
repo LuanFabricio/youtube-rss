@@ -9,7 +9,7 @@ import (
 
 var options []Option = []Option {
 	{
-		name: "list-playlists",
+		name: "list",
 		args: []string{},
 		description: "List the playlists.",
 		callback: func(args []string) {
@@ -69,25 +69,7 @@ var options []Option = []Option {
 			}
 
 			playlistName := args[0]
-			index := -1
-			playlists := db.GetPlaylists()
-			for i := range playlists {
-				if playlists[i].Name == playlistName {
-					index = i
-					break
-				}
-			}
-
-			if index == -1 {
-				fmt.Println("Playlist name not found." +
-					"You can list the playlists with" +
-					" `list-playlists` command.")
-				return
-			}
-			playlist := playlists[index]
-
-			// videos, err := GetPlaylist(os.Getenv("KEY"), playlist.youtubeId)
-			// LogError(err)
+			playlist := db.GetPlaylistByName(playlistName)
 
 			videos := db.GetVideosByPlaylist(playlist.YoutubeId)
 
