@@ -64,11 +64,19 @@ func Run(args []string) {
 
 	optionsMap := registerOptions()
 	option, found := optionsMap[args[0]]
-	if found {
-		args := args[1:]
+
+	for found && len(args) > 0 {
+		args = args[1:]
 		option.callback(args)
-		return
+
+		args = args[len(option.args):]
+		if len(args) == 0 {
+			break
+		}
+		option, found = optionsMap[args[0]]
 	}
 
-	help()
+	if !found {
+		help()
+	}
 }
