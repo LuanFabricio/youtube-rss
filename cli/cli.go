@@ -57,6 +57,9 @@ func Run(args []string) {
 	updateVideos()
 
 	args = args[1:]
+
+	args = applyFlags(args)
+
 	if len(args) == 0 {
 		help()
 		return
