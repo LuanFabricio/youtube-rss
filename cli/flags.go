@@ -10,6 +10,7 @@ type FlagCallback func(args []string) []string
 type Flag struct {
 	name string
 	shortname string
+	description string
 	callback FlagCallback
 }
 
@@ -17,6 +18,7 @@ var flags []Flag = []Flag{
 	{
 		name: "just-update",
 		shortname: "ju",
+		description: "Just run the update function.",
 		callback: func(args []string) []string {
 			os.Exit(0)
 			return []string{}
@@ -25,6 +27,7 @@ var flags []Flag = []Flag{
 	{
 		name: "show-all-unwatched",
 		shortname: "sau",
+		description: "List all of the unwatched episodes from all of the playlists.",
 		callback: func(args []string) []string {
 			queries := []string{}
 

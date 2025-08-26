@@ -25,6 +25,17 @@ func help() {
 		}
 		help += fmt.Sprintf("%v%v - %v\n", option.name, args, option.description)
 	}
+
+	help += "\nYou can use the following flags too:\n\n"
+
+	for _, flag := range flags {
+		help += fmt.Sprintf(
+			"--%v / -%v - %v\n",
+			flag.name,
+			flag.shortname,
+			flag.description)
+	}
+
 	fmt.Println(help)
 }
 
