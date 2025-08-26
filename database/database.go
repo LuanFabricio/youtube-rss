@@ -173,17 +173,22 @@ func GetVideosByPlaylist(playlistYoutubeId string) []models.Video {
 
 	var videos []models.Video
 	rows, err := db.Query(`
-		SELECT
-			v.playlist_id,
-			v.name,
-			v.youtube_id,
-			v.watched,
-			v.published_at
-		FROM playlists p
-			JOIN videos v
-				on v.playlist_id = p.id
-		WHERE p.youtube_id = $1
-		ORDER BY v.published_at desc
+		select
+			*
+		from (
+			SELECT
+				v.playlist_id,
+				v.name,
+				v.youtube_id,
+				v.watched,
+				v.published_at,
+				row_number() over(order by v.published_at asc) as episode
+			FROM playlists p
+				JOIN videos v
+					on v.playlist_id = p.id
+			WHERE p.youtube_id = $1
+		) subq
+		ORDER BY subq.published_at desc
 	`, playlistYoutubeId)
 	utils.LogError(err)
 
@@ -195,6 +200,7 @@ func GetVideosByPlaylist(playlistYoutubeId string) []models.Video {
 			&video.YoutubeId,
 			&video.Watched,
 			&video.PublishedAt,
+			&video.Episode,
 		)
 		videos = append(videos, video)
 	}
@@ -208,18 +214,24 @@ func GetVideosByPlaylistAndWatched(playlistYoutubeId string, watched bool) []mod
 
 	var videos []models.Video
 	rows, err := db.Query(`
-		SELECT
-			v.playlist_id,
-			v.name,
-			v.youtube_id,
-			v.watched,
-			v.published_at
-		FROM playlists p
-			JOIN videos v
-				on v.playlist_id = p.id
-		WHERE p.youtube_id = $1
-			and v.watched = $2
-		ORDER BY v.published_at desc
+		select
+			*
+		from (
+			SELECT
+				v.playlist_id,
+				v.name,
+				v.youtube_id,
+				v.watched,
+				v.published_at,
+				row_number() over(order by v.published_at asc) as episode
+			FROM playlists p
+				JOIN videos v
+					on v.playlist_id = p.id
+			WHERE p.youtube_id = $1
+		) subq
+		WHERE
+			subq.watched = $2
+		ORDER BY subq.published_at desc
 	`, playlistYoutubeId, watched)
 	utils.LogError(err)
 
@@ -231,6 +243,7 @@ func GetVideosByPlaylistAndWatched(playlistYoutubeId string, watched bool) []mod
 			&video.YoutubeId,
 			&video.Watched,
 			&video.PublishedAt,
+			&video.Episode,
 		)
 		videos = append(videos, video)
 	}

@@ -73,9 +73,8 @@ var options []Option = []Option {
 
 			videos := db.GetVideosByPlaylist(playlist.YoutubeId)
 
-			lenBody := len(videos)
 			fmt.Printf("Showing %v (%v):\n", playlist.Name, playlist.YoutubeId)
-			for i, item := range videos {
+			for _, item := range videos {
 				var watchedMark string
 				if item.Watched {
 					watchedMark += "*"
@@ -86,7 +85,7 @@ var options []Option = []Option {
 				fmt.Printf(
 					"\t %vEpisode %03d: %v\n",
 					watchedMark,
-					lenBody - i,
+					*item.Episode,
 					item.Name,
 				)
 			}
@@ -121,10 +120,10 @@ var options []Option = []Option {
 					playlist.YoutubeId,
 				)
 
-				for i, item := range videos {
+				for _, item := range videos {
 					message += fmt.Sprintf(
 						"\t Episode %03d: %v\n",
-						lenBody - i,
+						*item.Episode,
 						item.Name,
 					)
 				}
