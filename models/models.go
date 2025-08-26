@@ -16,4 +16,5 @@ type Video struct {
 	Watched bool
 	PublishedAt *time.Time
 	CreatedAt *time.Time
+	Episode *int
 }
