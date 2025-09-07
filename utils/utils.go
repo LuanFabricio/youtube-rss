@@ -12,6 +12,12 @@ func LogError(err error) {
 	}
 }
 
+func LogWarning(err error) {
+	if err != nil {
+		log.Printf("WARNING: %v\n", err)
+	}
+}
+
 func GetBaseFolder() string {
 	user_folder, err := os.UserHomeDir()
 	LogError(err)
