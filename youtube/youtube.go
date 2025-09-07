@@ -41,12 +41,13 @@ type Body struct {
 	Kind string `json:"kind"`
 	Etag string `json:"etag"`
 	Id string `json:"id"`
+	NextPageToken string `json:"nextPageToken"`
 	Items []Item `json:"items"`
 }
 
 const BASE_URL string = "https://www.googleapis.com" +
 	"/youtube/v3/playlistItems" +
-	"?part=snippet&maxResults=50"
+	"?part=snippet&maxResults=25"
 
 func GetPlaylist(apiKey string, playlistId string) (Body, error) {
 	url := BASE_URL + fmt.Sprintf("&playlistId=%v", playlistId) +
@@ -57,6 +58,23 @@ func GetPlaylist(apiKey string, playlistId string) (Body, error) {
 
 	var resBody Body
 	err = json.NewDecoder(res.Body).Decode(&resBody)
+	utils.LogWarning(err)
+
+	nextPageToken := resBody.NextPageToken
+	for len(nextPageToken) != 0 {
+		var tmpBody Body
+
+		nextPageParam := fmt.Sprintf("&pageToken=%s", nextPageToken)
+		res, err := http.Get(url + nextPageParam)
+		utils.LogError(err)
+
+		err = json.NewDecoder(res.Body).Decode(&tmpBody)
+		utils.LogWarning(err)
+
+		resBody.Items = append(resBody.Items, tmpBody.Items[:]...)
+
+		nextPageToken = tmpBody.NextPageToken
+	}
 
 	return resBody, err
 }
